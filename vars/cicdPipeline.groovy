@@ -71,12 +71,13 @@ def call(Map config) {
 
             stage('Run Docker Container') {
               steps {
-                  sh """
-                  docker rm -f ${env.DOCKER_IMAGE_NAME} || true
-                  docker run -d -p 8081:8081 ${env.ECR_URL}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG}
-                  """
-               }
-            }
+                 sh """
+                 docker rm -f ${env.DOCKER_IMAGE_NAME} || true
+                 docker run -d -p 8081:8081 --name ${env.DOCKER_IMAGE_NAME} ${env.ECR_URL}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG}
+                 """
+                 }
+             }
+
 
 
         }
