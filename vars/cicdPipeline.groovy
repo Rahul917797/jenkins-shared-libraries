@@ -20,7 +20,7 @@ def call(Map config) {
                     }
 
                     // Checkout code
-                    git branch: 'master', url: config.gitRepo
+                    git branch: 'main', url: config.gitRepo
                 }
             }
 
