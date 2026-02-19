@@ -4,16 +4,22 @@ def call(Map config) {
         agent any
 
         environment {
-            DOCKER_IMAGE_NAME = config.dockerImage
+            // Only dynamic environment Jenkins allows: literals or env variables
             DOCKER_TAG = "${env.BUILD_NUMBER}"
-            AWS_REGION = config.awsRegion
-            ECR_URL = config.ecrUrl
         }
 
         stages {
 
             stage('Checkout Code') {
                 steps {
+                    script {
+                        // Dynamic variables from config
+                        env.DOCKER_IMAGE_NAME = config.dockerImage
+                        env.AWS_REGION        = config.awsRegion
+                        env.ECR_URL           = config.ecrUrl
+                    }
+
+                    // Checkout code
                     git branch: 'master', url: config.gitRepo
                 }
             }
@@ -46,7 +52,7 @@ def call(Map config) {
 
             stage('Build Docker Image') {
                 steps {
-                    sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} ."
+                    sh "docker build -t ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG} ."
                 }
             }
 
@@ -54,11 +60,11 @@ def call(Map config) {
                 steps {
                     sh """
                     # Authenticate Docker to ECR using IAM role
-                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URL}
+                    aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_URL}
 
                     # Tag and push Docker image
-                    docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} ${ECR_URL}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
-                    docker push ${ECR_URL}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
+                    docker tag ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG} ${env.ECR_URL}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG}
+                    docker push ${env.ECR_URL}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG}
                     """
                 }
             }
