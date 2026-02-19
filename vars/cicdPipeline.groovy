@@ -8,8 +8,6 @@ def call(Map config) {
             DOCKER_TAG = "${env.BUILD_NUMBER}"
             AWS_REGION = config.awsRegion
             ECR_URL = config.ecrUrl
-            HELM_RELEASE_NAME = config.helmRelease
-            HELM_NAMESPACE = config.namespace
         }
 
         stages {
@@ -54,14 +52,25 @@ def call(Map config) {
 
             stage('Push Docker Image') {
                 steps {
-                    withAWS(credentials: 'aws-creds', region: AWS_REGION) {
-                        sh """
-                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URL}
-                        docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} ${ECR_URL}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
-                        docker push ${ECR_URL}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
-                        """
-                    }
+                    sh """
+                    # Authenticate Docker to ECR using IAM role
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URL}
+
+                    # Tag and push Docker image
+                    docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} ${ECR_URL}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
+                    docker push ${ECR_URL}/${DOCKER_IMAGE_NAME}:${DOCKER_TAG}
+                    """
                 }
+            }
+
+        }
+
+        post {
+            success {
+                echo "Pipeline successfully completed!"
+            }
+            failure {
+                echo "Pipeline failed!"
             }
         }
     }
