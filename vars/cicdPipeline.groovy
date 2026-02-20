@@ -72,9 +72,12 @@ def call(Map config) {
                 steps {
                     script {
                         sh """
+                        aws sts get-caller-identity
                         aws eks update-kubeconfig --region ${env.AWS_REGION} --name ${env.EKS_CLUSTER}
-                        kubectl apply -f k8s/deployment.yaml
-                        kubectl apply -f k8s/service.yaml
+                        kubectl get nodes
+                        kubectl apply -f deployment.yml
+                        kubectl apply -f service.yml
+                        kubectl get all
                         """
                     }
                 }
