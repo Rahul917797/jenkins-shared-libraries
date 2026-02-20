@@ -43,12 +43,18 @@ def call(Map config) {
             }
 
             stage('Quality Gate') {
-                steps {
-                    timeout(time: 5, unit: 'MINUTES') {
-                        waitForQualityGate abortPipeline: true
-                    }
+    steps {
+        script {
+            timeout(time: 5, unit: 'MINUTES') {
+                def qg = waitForQualityGate abortPipeline: false
+                echo "Quality Gate status: ${qg.status}"
+                if (qg.status != 'OK') {
+                    error("Pipeline aborted due to Quality Gate failure: ${qg.status}")
                 }
             }
+        }
+    }
+}
 
             stage('Build Docker Image') {
                 steps {
