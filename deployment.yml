@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: 854439979417.dkr.ecr.us-east-1.amazonaws.com/myreg/my-app:V1
+          image: rahul917797/bms:latest
           ports:
             - containerPort: 8081
