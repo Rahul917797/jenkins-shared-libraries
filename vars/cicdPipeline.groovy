@@ -68,6 +68,21 @@ def call(Map config) {
                 }
             }
 
+            stage('Create ECR Pull Secret') {
+                steps {
+                    script {
+                        sh """
+                        aws eks update-kubeconfig --region ${env.AWS_REGION} --name ${env.EKS_CLUSTER}
+                        kubectl create secret docker-registry ecr-secret \
+                          --docker-server=${env.ECR_URL} \
+                          --docker-username=AWS \
+                          --docker-password=\$(aws ecr get-login-password --region ${env.AWS_REGION}) \
+                          --dry-run=client -o yaml | kubectl apply -f -
+                        """
+                    }
+                }
+            }
+
             stage('Deploy to EKS') {
                 steps {
                     script {
