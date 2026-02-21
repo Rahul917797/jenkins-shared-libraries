@@ -105,6 +105,7 @@ def call(Map config) {
                         kubectl get nodes
                         kubectl apply -f deployment.yml
                         kubectl apply -f service.yml
+                        kubectl rollout restart deployment my-app-deployment
                         kubectl get all
                         """
                     }
