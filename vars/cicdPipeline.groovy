@@ -85,6 +85,17 @@ def call(Map config) {
                 }
             }
 
+            stage('Run Docker Container') {
+              steps {
+                script {
+                sh """
+                docker rm -f ${env.DOCKER_IMAGE_NAME} || true
+                docker run -d --name ${env.DOCKER_IMAGE_NAME} -p 8081:8081 ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG}
+                """
+                    }
+               }
+            }
+
             stage('Deploy to EKS') {
                 steps {
                     script {
