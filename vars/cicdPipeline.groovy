@@ -58,15 +58,6 @@ def call(Map config) {
                 }
             }
 
-            stage('Push Docker Image') {
-                steps {
-                    sh """
-                    aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_URL}
-                    docker tag ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG} ${env.ECR_URL}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG}
-                    docker push ${env.ECR_URL}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG}
-                    """
-                }
-            }
 
             stage('Create ECR Pull Secret') {
                 steps {
@@ -80,6 +71,17 @@ def call(Map config) {
                           --dry-run=client -o yaml | kubectl apply -f -
                         """
                     }
+                }
+            }
+
+
+            stage('Push Docker Image') {
+                steps {
+                    sh """
+                    aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_URL}
+                    docker tag ${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG} ${env.ECR_URL}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG}
+                    docker push ${env.ECR_URL}/${env.DOCKER_IMAGE_NAME}:${env.DOCKER_TAG}
+                    """
                 }
             }
 
