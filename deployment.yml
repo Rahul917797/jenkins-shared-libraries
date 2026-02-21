@@ -14,6 +14,8 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: 854439979417.dkr.ecr.us-east-1.amazonaws.com/myreg/my-app
+          image: 854439979417.dkr.ecr.us-east-1.amazonaws.com/myreg/my-app:5
           ports:
             - containerPort: 8081
+      imagePullSecrets:
+        - name: ecr-secret
